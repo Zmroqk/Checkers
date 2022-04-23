@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CheckersEngine
+{
+    public interface IPlayer
+    {
+        short PiecesLeft { get; set; }
+        double Score { get; set; }
+        CheckersColor Color { get; set; }
+
+        List<Field> MakeMove();
+    }
+}
