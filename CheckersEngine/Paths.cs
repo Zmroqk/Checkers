@@ -10,8 +10,8 @@ namespace CheckersEngine
     {
         public Paths()
         {
-            FoundPaths = new Dictionary<Piece, List<List<Field>>>();
+            FoundPaths = new Dictionary<Piece, List<Stack<Move>>>();
         }
-        public Dictionary<Piece, List<List<Field>>> FoundPaths { get; }
+        public Dictionary<Piece, List<Stack<Move>>> FoundPaths { get; }
     }
 }

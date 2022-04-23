@@ -12,6 +12,7 @@ namespace CheckersEngine
         double Score { get; set; }
         CheckersColor Color { get; set; }
 
-        List<Field> MakeMove();
+        event EventHandler NoPiecesLeft;
+        Stack<Move> MakeMove(Paths offers);
     }
 }

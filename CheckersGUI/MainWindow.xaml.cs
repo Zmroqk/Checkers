@@ -29,12 +29,13 @@ namespace CheckersGUI
         public MainWindow()
         {
             InitializeComponent();
+            CheckersBoard = new Board(null, null); //TODO Add players
+            CheckersBoard.InitBoard();
             GenerateBoard();
         }
 
         private void GenerateBoard()
         {
-            CheckersBoard = new Board(null, null); //TODO Add players
             GridFields = new FieldGUI[BoardSize][];
             for(int i = 0; i < BoardSize; i++)
             {
