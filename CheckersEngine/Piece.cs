@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CheckersEngine.Players;
 
 namespace CheckersEngine
 {
@@ -217,7 +218,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                     else if(found && nextFieldChecked.Piece != null)
@@ -250,7 +252,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                     else if (found && nextFieldChecked.Piece != null)
@@ -283,7 +286,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                     else if (found && nextFieldChecked.Piece != null)
@@ -316,7 +320,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                     else if (found && nextFieldChecked.Piece != null)
@@ -339,7 +344,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                 }
@@ -353,7 +359,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                 }
@@ -367,7 +374,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                 }
@@ -382,7 +390,8 @@ namespace CheckersEngine
                         {
                             StartField = field,
                             DestinationField = nextFieldChecked,
-                            AttackedField = fieldChecked
+                            AttackedField = fieldChecked,
+                            AttackedPiece = fieldChecked.Piece
                         });
                     }
                 }
@@ -398,6 +407,9 @@ namespace CheckersEngine
                 {
                     Piece originalPiece = foundAttacks[i].StartField.Piece;
                     Piece attackedPiece = foundAttacks[i].AttackedField.Piece;
+                    foundAttacks[i].StartField.InformPieceChanged = false;
+                    foundAttacks[i].DestinationField.InformPieceChanged = false;
+                    foundAttacks[i].AttackedField.InformPieceChanged = false;
                     foundAttacks[i].StartField.Piece = null;
                     foundAttacks[i].DestinationField.Piece = new Piece(foundAttacks[i].DestinationField, Color, Player);
                     foundAttacks[i].AttackedField.Piece = null;
@@ -405,6 +417,9 @@ namespace CheckersEngine
                     foundAttacks[i].StartField.Piece = originalPiece;
                     foundAttacks[i].DestinationField.Piece = null;
                     foundAttacks[i].AttackedField.Piece = attackedPiece;
+                    foundAttacks[i].StartField.InformPieceChanged = true;
+                    foundAttacks[i].DestinationField.InformPieceChanged = true;
+                    foundAttacks[i].AttackedField.InformPieceChanged = true;
                     if (result == null)
                     {
                         Stack<Move> newStack = new Stack<Move>();

@@ -11,5 +11,6 @@ namespace CheckersEngine
         public Field StartField { get; set; }
         public Field DestinationField { get; set; }
         public Field? AttackedField { get; set; }
+        public Piece? AttackedPiece { get; set; }
     }
 }

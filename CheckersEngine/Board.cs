@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CheckersEngine.Players;
 
 namespace CheckersEngine
 {
@@ -18,20 +19,26 @@ namespace CheckersEngine
         public IPlayer? ActivePlayer;
 
         public IPlayer? Winner;
-        public EventHandler<IPlayer> OnWinnerAnnouncement;
+        public event EventHandler<IPlayer> OnWinnerAnnouncement;
+        public event EventHandler<IPlayer> OnPlayerTurnChange;
 
         private Paths ActivePlayerMoves;
 
-        public Board(IPlayer first, IPlayer second)
-        {
+        private Stack<Move> MoveHistory;
+
+        private bool IsBoardInitialized;
+        private bool ArePlayersInitialized;
+
+        public bool InformPlayersAboutChange;
+
+        public Board()
+        {            
             BlackPieces = new List<Piece>();
             WhitePieces = new List<Piece>();
-            WhitePlayer = first;
-            BlackPlayer = second;
-            ActivePlayer = first;
-
-            WhitePlayer.NoPiecesLeft += OnNoPiecesLeft;
-            BlackPlayer.NoPiecesLeft += OnNoPiecesLeft;
+            MoveHistory = new Stack<Move>();
+            IsBoardInitialized = false;
+            ArePlayersInitialized = false;
+            InformPlayersAboutChange = true;
         }
 
         private void OnNoPiecesLeft(object? sender, EventArgs e)
@@ -50,6 +57,21 @@ namespace CheckersEngine
             }
         }
 
+        public void InitPlayers(IPlayer first, IPlayer second)
+        {
+            if (first == null || second == null)
+            {
+                throw new ArgumentNullException();
+            }
+            WhitePlayer = first;
+            BlackPlayer = second;
+            ActivePlayer = first;
+
+            WhitePlayer.NoPiecesLeft += OnNoPiecesLeft;
+            BlackPlayer.NoPiecesLeft += OnNoPiecesLeft;
+            ArePlayersInitialized = true;
+            OnPlayerTurnChange?.Invoke(this, WhitePlayer);
+        }
         public void InitBoard()
         {
             Fields = new Field[BoardSize][];
@@ -84,6 +106,7 @@ namespace CheckersEngine
                     }
                 }
             }
+            IsBoardInitialized = true;
         }
 
         private void Piece_OnDestroy(object? sender, Piece e)
@@ -102,12 +125,29 @@ namespace CheckersEngine
 
         public void MovePiece(Piece piece, Stack<Move> moves)
         {
+            if (!IsBoardInitialized && !ArePlayersInitialized)
+                throw new ArgumentNullException();
             List<Stack<Move>> legalMoves = ActivePlayerMoves.FoundPaths[piece]; //TODO EXTEND MOVE SECURITY
             if (legalMoves.Contains(moves))
             {
                 while (moves.Count > 0)
                 {
                     Move poppedMove = moves.Pop();
+                    MoveHistory.Push(poppedMove);
+                    if (!InformPlayersAboutChange)
+                    {
+                        poppedMove.StartField.InformPieceChanged = false;
+                        poppedMove.DestinationField.InformPieceChanged = false;
+                        if(poppedMove.AttackedField != null)
+                            poppedMove.AttackedField.InformPieceChanged = false;
+                    }
+                    else
+                    {
+                        poppedMove.StartField.InformPieceChanged = true;
+                        poppedMove.DestinationField.InformPieceChanged = true;
+                        if (poppedMove.AttackedField != null)
+                            poppedMove.AttackedField.InformPieceChanged = true;
+                    }
                     poppedMove.StartField.Piece = null;
                     poppedMove.DestinationField.Piece = piece;
                     if (poppedMove.AttackedField != null)
@@ -116,11 +156,65 @@ namespace CheckersEngine
                     }
                     piece.Field = poppedMove.DestinationField;
                 }
+                if(ActivePlayer == WhitePlayer)
+                {
+                    ActivePlayer = BlackPlayer;
+                }
+                else
+                {
+                    ActivePlayer = WhitePlayer;
+                }
+                if (InformPlayersAboutChange)
+                {
+                    OnPlayerTurnChange?.Invoke(this, ActivePlayer);
+                }
             }      
+        }
+
+        public void UndoMoves(int count = 1)
+        {
+            if (!IsBoardInitialized && !ArePlayersInitialized)
+                throw new ArgumentNullException();
+            if (count > MoveHistory.Count)
+                throw new ArgumentException();
+            for (int i = 0; i < count; i++) {
+                Move poppedMove = MoveHistory.Pop();
+                if (!InformPlayersAboutChange)
+                {
+                    poppedMove.StartField.InformPieceChanged = false;
+                    poppedMove.DestinationField.InformPieceChanged = false;
+                    if (poppedMove.AttackedField != null)
+                        poppedMove.AttackedField.InformPieceChanged = false;
+                }
+                else
+                {
+                    poppedMove.StartField.InformPieceChanged = true;
+                    poppedMove.DestinationField.InformPieceChanged = true;
+                    if (poppedMove.AttackedField != null)
+                        poppedMove.AttackedField.InformPieceChanged = true;
+                }
+                poppedMove.StartField.Piece = poppedMove.DestinationField.Piece;
+                poppedMove.DestinationField.Piece = null;
+                if (poppedMove.AttackedField != null)
+                {
+                    poppedMove.AttackedField.Piece = poppedMove.AttackedPiece;
+                }
+                poppedMove.StartField.Piece.Field = poppedMove.StartField;
+            }
+            if (ActivePlayer == WhitePlayer)
+            {
+                ActivePlayer = BlackPlayer;
+            }
+            else
+            {
+                ActivePlayer = WhitePlayer;
+            }
         }
 
         public Paths FindPossibleMoves(IPlayer player)
         {
+            if (!IsBoardInitialized && !ArePlayersInitialized)
+                throw new ArgumentNullException();
             List<Piece> checkedList;
             if(player.Color == CheckersColor.White)
             {
@@ -135,7 +229,7 @@ namespace CheckersEngine
             foreach(Piece piece in checkedList)
             {
                 List<Stack<Move>> possibleAttacks = piece.FindAttacks();
-                if(possibleAttacks != null)
+                if (possibleAttacks != null)
                 {
                     piece.MustAttack = true;
                     paths.FoundPaths.Add(piece, possibleAttacks);
@@ -145,7 +239,8 @@ namespace CheckersEngine
                 {
                     piece.MustAttack = false;
                     List<Stack<Move>> possibleMoves = piece.FindMoves();
-                    paths.FoundPaths.Add(piece, possibleMoves);
+                    if(possibleMoves.Count > 0)
+                        paths.FoundPaths.Add(piece, possibleMoves);
                 }
             }
             if (foundAttack)
@@ -166,6 +261,8 @@ namespace CheckersEngine
         public Field this[int index, int secondIndex] {
             get
             {
+                if (!IsBoardInitialized)
+                    throw new ArgumentNullException();
                 return Fields[index][secondIndex];
             }
         }
@@ -196,8 +293,14 @@ namespace CheckersEngine
 
         public void Dispose()
         {
+            IsBoardInitialized = false;
+            ArePlayersInitialized = false;
             Fields = null;
             ActivePlayerMoves = null;
+            WhitePlayer = null;
+            BlackPlayer = null;
+            MoveHistory = null;
+            ActivePlayer = null;
         }
     }
 }

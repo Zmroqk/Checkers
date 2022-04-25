@@ -14,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CheckersGUI.Components;
 using CheckersEngine;
+using CheckersEngine.Players;
+using CheckersEngine.Heuristics;
 
 namespace CheckersGUI
 {
@@ -24,14 +26,21 @@ namespace CheckersGUI
     {
         int BoardSize = 8;
         FieldGUI[][] GridFields;
+        GameManager GameManager;
         Board CheckersBoard;
 
         public MainWindow()
         {
             InitializeComponent();
-            CheckersBoard = new Board(null, null); //TODO Add players
-            CheckersBoard.InitBoard();
+            GameManager = new GameManager();
+            CheckersBoard = GameManager.Board;
             GenerateBoard();
+            Task.Run(() =>
+            {
+                IHeuristic heuristic = new SimpleHeuristic(CheckersBoard);
+                GameManager.SetPlayerBlack(new AIPlayer(new MinMaxAlgorithm(5, CheckersBoard, heuristic), CheckersBoard));
+                GameManager.SetPlayerWhite(new AIPlayer(new MinMaxAlgorithm(5, CheckersBoard, heuristic), CheckersBoard));
+            });       
         }
 
         private void GenerateBoard()

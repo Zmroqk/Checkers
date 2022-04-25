@@ -10,12 +10,14 @@ namespace CheckersEngine
             Column = column;
             Color = color;
             Board = board;
+            InformPieceChanged = true;
         }
 
         public int Row { get; }
         public int Column { get; }
         public Board Board { get; }
-        public Piece? Piece { get { return _piece; } set { _piece = value; PieceChanged?.Invoke(this, _piece); } }
+        public Piece? Piece { get { return _piece; } set { _piece = value; if(InformPieceChanged) PieceChanged?.Invoke(this, _piece); } }
+        public bool InformPieceChanged;
 
         Piece? _piece;
         public CheckersColor Color { get; }

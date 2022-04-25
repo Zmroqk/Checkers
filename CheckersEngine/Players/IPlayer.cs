@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CheckersEngine
+namespace CheckersEngine.Players
 {
     public interface IPlayer
     {
