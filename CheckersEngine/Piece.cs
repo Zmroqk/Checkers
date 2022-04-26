@@ -9,13 +9,16 @@ namespace CheckersEngine
 {
     public class Piece
     {
-        public Piece(Field field, CheckersColor color, IPlayer player)
+        public Piece(Field field, CheckersColor color, IPlayer player, int piedeid = -1)
         {
             Field = field;
             Color = color;
             IsQueen = false;
             Player = player;
+            PieceId = piedeid;
         }
+
+        public int PieceId;
 
         public Field Field { get; set; }
         public CheckersColor Color { get; }
@@ -410,8 +413,8 @@ namespace CheckersEngine
                     foundAttacks[i].StartField.InformPieceChanged = false;
                     foundAttacks[i].DestinationField.InformPieceChanged = false;
                     foundAttacks[i].AttackedField.InformPieceChanged = false;
-                    foundAttacks[i].StartField.Piece = null;
-                    foundAttacks[i].DestinationField.Piece = new Piece(foundAttacks[i].DestinationField, Color, Player);
+                    foundAttacks[i].DestinationField.Piece = originalPiece;
+                    foundAttacks[i].StartField.Piece = null;               
                     foundAttacks[i].AttackedField.Piece = null;
                     List<Stack<Move>> result = FindAttacks(foundAttacks[i].DestinationField);
                     foundAttacks[i].StartField.Piece = originalPiece;

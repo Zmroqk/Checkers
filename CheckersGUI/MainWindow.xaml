@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Background="Gray"
         Title="MainWindow" Height="900" Width="1600">
-    <Grid x:Name="Board" Height="640" Width="640" Background="SaddleBrown">
+    <Grid x:Name="Board" Height="800" Width="640" Background="SaddleBrown">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="80"/>
             <ColumnDefinition Width="80"/>
@@ -27,6 +27,9 @@
             <RowDefinition Height="80"/>
             <RowDefinition Height="80"/>
             <RowDefinition Height="80"/>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
+        <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="8"  Width="300" Height="30" Content="Click me" Click="Button_Click" Background="White"/>
     </Grid>
 </Window>

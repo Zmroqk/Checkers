@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CheckersEngine;
+using System.Diagnostics;
 
 namespace CheckersGUI.Components
 {
@@ -54,15 +55,22 @@ namespace CheckersGUI.Components
 
         private void FieldRef_PieceChanged(object? sender, Piece? e)
         {
-            if (e != null)
+            try
             {
-                if (e.Color == CheckersColor.White)
-                    PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
+                if (e != null)
+                {
+                    if (e.Color == CheckersColor.White)
+                        PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
+                    else
+                        PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
+                }
                 else
-                    PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
+                    PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
             }
-            else
-                PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message, "Error");
+            }
            
         }
 

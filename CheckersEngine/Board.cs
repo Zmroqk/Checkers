@@ -22,7 +22,7 @@ namespace CheckersEngine
         public event EventHandler<IPlayer> OnWinnerAnnouncement;
         public event EventHandler<IPlayer> OnPlayerTurnChange;
 
-        private Paths ActivePlayerMoves;
+        public Paths ActivePlayerMoves;
 
         private Stack<Move> MoveHistory;
 
@@ -75,6 +75,7 @@ namespace CheckersEngine
         public void InitBoard()
         {
             Fields = new Field[BoardSize][];
+            int counter = 0;
             for (int i = 0; i < BoardSize; i++)
             {
                 Fields[i] = new Field[BoardSize];
@@ -93,13 +94,13 @@ namespace CheckersEngine
                         currentColor = CheckersColor.White;
                         if ((i == 0 && j % 2 == 1) || (i == 1 && j % 2 == 0))
                         {
-                            Fields[i][j].Piece = new Piece(Fields[i][j], CheckersColor.Black, BlackPlayer);
+                            Fields[i][j].Piece = new Piece(Fields[i][j], CheckersColor.Black, BlackPlayer, counter++);
                             Fields[i][j].Piece.OnDestroy += Piece_OnDestroy;
                             BlackPieces.Add(Fields[i][j].Piece);
                         }
                         else if ((i == BoardSize - 1 && j % 2 == 0) || (i == BoardSize - 2 && j % 2 == 1))
                         {
-                            Fields[i][j].Piece = new Piece(Fields[i][j], CheckersColor.White, WhitePlayer);
+                            Fields[i][j].Piece = new Piece(Fields[i][j], CheckersColor.White, WhitePlayer, counter++);
                             Fields[i][j].Piece.OnDestroy += Piece_OnDestroy;
                             WhitePieces.Add(Fields[i][j].Piece);
                         }
@@ -148,13 +149,34 @@ namespace CheckersEngine
                         if (poppedMove.AttackedField != null)
                             poppedMove.AttackedField.InformPieceChanged = true;
                     }
-                    poppedMove.StartField.Piece = null;
-                    poppedMove.DestinationField.Piece = piece;
+                    poppedMove.DestinationField.Piece = poppedMove.StartField.Piece;
+                    poppedMove.StartField.Piece = null;                 
                     if (poppedMove.AttackedField != null)
                     {
+                        if (poppedMove.AttackedPiece.Color == CheckersColor.Black)
+                            BlackPieces.Remove(poppedMove.AttackedPiece);
+                        else
+                            WhitePieces.Remove(poppedMove.AttackedPiece);
                         poppedMove.AttackedField.Piece = null;
                     }
-                    piece.Field = poppedMove.DestinationField;
+                    poppedMove.DestinationField.Piece.Field = poppedMove.DestinationField;
+                    if (moves.Count == 0)
+                    {
+                        if (poppedMove.DestinationField.Piece.Color == CheckersColor.Black 
+                            && poppedMove.DestinationField.Row == BoardSize-1 
+                            && !poppedMove.DestinationField.Piece.IsQueen)
+                        {
+                            poppedMove.DestinationField.Piece.IsQueen = true;
+                            poppedMove.ChangedToQueen = true;
+                        }
+                        else if(poppedMove.DestinationField.Piece.Color == CheckersColor.White 
+                            && poppedMove.DestinationField.Row == 0
+                            && !poppedMove.DestinationField.Piece.IsQueen)
+                        {
+                            poppedMove.DestinationField.Piece.IsQueen = true;
+                            poppedMove.ChangedToQueen = true;
+                        }
+                    }
                 }
                 if(ActivePlayer == WhitePlayer)
                 {
@@ -198,8 +220,16 @@ namespace CheckersEngine
                 if (poppedMove.AttackedField != null)
                 {
                     poppedMove.AttackedField.Piece = poppedMove.AttackedPiece;
+                    if (poppedMove.AttackedPiece.Color == CheckersColor.Black)
+                        BlackPieces.Add(poppedMove.AttackedPiece);
+                    else
+                        WhitePieces.Add(poppedMove.AttackedPiece);
                 }
                 poppedMove.StartField.Piece.Field = poppedMove.StartField;
+                if (poppedMove.ChangedToQueen)
+                {
+                    poppedMove.StartField.Piece.IsQueen = false;
+                }
             }
             if (ActivePlayer == WhitePlayer)
             {
@@ -278,7 +308,7 @@ namespace CheckersEngine
                 for (int j = 0; j < BoardSize; j++)
                 {
                     if (Fields[i][j].Piece == null)
-                        sb.Append(" . |");
+                        sb.Append(" _ |");
                     else if (Fields[i][j].Piece.Color == CheckersColor.White)
                         sb.Append(" W |");
                     else

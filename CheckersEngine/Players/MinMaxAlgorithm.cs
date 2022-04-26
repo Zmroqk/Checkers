@@ -37,11 +37,16 @@ namespace CheckersEngine.Players
                     Board.MovePiece(pieces[i], move);
                     double score = mini(Level);
                     Board.UndoMoves(count);
+                    while(moveCopy.Count > 0)
+                    {
+                        move.Push(moveCopy.Pop());
+                    }
                     if (score > max)
                     {
                         max = score;
-                        bestMoves = moveCopy;
+                        bestMoves = move;
                     }
+                    Board.ActivePlayerMoves = offers;
                 }
             }
             return bestMoves;

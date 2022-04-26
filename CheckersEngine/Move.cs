@@ -12,5 +12,6 @@ namespace CheckersEngine
         public Field DestinationField { get; set; }
         public Field? AttackedField { get; set; }
         public Piece? AttackedPiece { get; set; }
+        public bool ChangedToQueen { get; set; }
     }
 }
