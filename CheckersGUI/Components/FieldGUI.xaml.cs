@@ -33,10 +33,24 @@ namespace CheckersGUI.Components
             set
             {
                 _pieceColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PieceColor"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PieceColor)));
             }
         }
         Brush _pieceColor;
+
+        public Brush PieceColorQueen
+        {
+            get
+            {
+                return _pieceColorQueen;
+            }
+            set
+            {
+                _pieceColorQueen = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PieceColorQueen)));
+            }
+        }
+        Brush _pieceColorQueen;
 
         public FieldGUI()
         {
@@ -49,23 +63,52 @@ namespace CheckersGUI.Components
         {
             border.Background = new SolidColorBrush(color);
             FieldRef = fieldRef;
-            FieldRef.PieceChanged += FieldRef_PieceChanged;
-            FieldRef_PieceChanged(null, FieldRef.Piece);
+            FieldRef.Board.BoardChanged += Board_BoardChanged;
+            //FieldRef.PieceChanged += FieldRef_PieceChanged;
+            //FieldRef_PieceChanged(null, FieldRef.Piece);
+        }
+
+        private void Board_BoardChanged(object? sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (FieldRef.Piece != null)
+                {
+                    if (FieldRef.Piece.Color == CheckersColor.White)
+                        PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
+                    else
+                        PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
+
+                    if (FieldRef.Piece.IsQueen)
+                    {
+                        PieceColorQueen = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
+                    }
+                    else
+                    {
+                        PieceColorQueen = new SolidColorBrush(Color.FromArgb(a: 0, 0, 0, 0));
+                    }
+                }
+                else
+                    PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+            });
         }
 
         private void FieldRef_PieceChanged(object? sender, Piece? e)
         {
             try
             {
-                if (e != null)
+                Dispatcher.Invoke(() =>
                 {
-                    if (e.Color == CheckersColor.White)
-                        PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
+                    if (e != null)
+                    {
+                        if (e.Color == CheckersColor.White)
+                            PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
+                        else
+                            PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
+                    }
                     else
-                        PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
-                }
-                else
-                    PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                        PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                });            
             }
             catch(Exception ex)
             {

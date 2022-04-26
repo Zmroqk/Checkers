@@ -40,7 +40,7 @@ namespace CheckersEngine
                     {
                         Stack<Move> stack = new Stack<Move>();
                         stack.Push(new Move() { 
-                            StartField = Field.Board[xLocal, yLocal], 
+                            StartField = Field.Board[x, y], 
                             DestinationField = Field.Board[xLocal - 1, yLocal - 1] 
                         });
                         moves.Add(stack);
@@ -60,7 +60,7 @@ namespace CheckersEngine
                         Stack<Move> stack = new Stack<Move>();
                         stack.Push(new Move()
                         {
-                            StartField = Field.Board[xLocal, yLocal],
+                            StartField = Field.Board[x, y],
                             DestinationField = Field.Board[xLocal - 1, yLocal + 1]
                         });
                         moves.Add(stack);
@@ -80,7 +80,7 @@ namespace CheckersEngine
                         Stack<Move> stack = new Stack<Move>();
                         stack.Push(new Move()
                         {
-                            StartField = Field.Board[xLocal, yLocal],
+                            StartField = Field.Board[x, y],
                             DestinationField = Field.Board[xLocal + 1, yLocal - 1]
                         });
                         moves.Add(stack);
@@ -100,7 +100,7 @@ namespace CheckersEngine
                         Stack<Move> stack = new Stack<Move>();
                         stack.Push(new Move()
                         {
-                            StartField = Field.Board[xLocal, yLocal],
+                            StartField = Field.Board[x, y],
                             DestinationField = Field.Board[xLocal + 1, yLocal + 1]
                         });
                         moves.Add(stack);
@@ -225,6 +225,10 @@ namespace CheckersEngine
                             AttackedPiece = fieldChecked.Piece
                         });
                     }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece != null)
+                    {
+                        break;
+                    }
                     else if(found && nextFieldChecked.Piece != null)
                     {
                         break;
@@ -258,6 +262,10 @@ namespace CheckersEngine
                             AttackedField = fieldChecked,
                             AttackedPiece = fieldChecked.Piece
                         });
+                    }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece != null)
+                    {
+                        break;
                     }
                     else if (found && nextFieldChecked.Piece != null)
                     {
@@ -293,6 +301,10 @@ namespace CheckersEngine
                             AttackedPiece = fieldChecked.Piece
                         });
                     }
+                    else if(fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece != null)
+                    {
+                        break;
+                    }
                     else if (found && nextFieldChecked.Piece != null)
                     {
                         break;
@@ -326,6 +338,10 @@ namespace CheckersEngine
                             AttackedField = fieldChecked,
                             AttackedPiece = fieldChecked.Piece
                         });
+                    }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece != null)
+                    {
+                        break;
                     }
                     else if (found && nextFieldChecked.Piece != null)
                     {
@@ -416,7 +432,11 @@ namespace CheckersEngine
                     foundAttacks[i].DestinationField.Piece = originalPiece;
                     foundAttacks[i].StartField.Piece = null;               
                     foundAttacks[i].AttackedField.Piece = null;
+                    originalPiece.Field = foundAttacks[i].DestinationField;
+                    attackedPiece.Field = null;
                     List<Stack<Move>> result = FindAttacks(foundAttacks[i].DestinationField);
+                    originalPiece.Field = foundAttacks[i].StartField;
+                    attackedPiece.Field = foundAttacks[i].AttackedField;
                     foundAttacks[i].StartField.Piece = originalPiece;
                     foundAttacks[i].DestinationField.Piece = null;
                     foundAttacks[i].AttackedField.Piece = attackedPiece;

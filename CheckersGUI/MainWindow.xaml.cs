@@ -34,11 +34,7 @@ namespace CheckersGUI
             InitializeComponent();
             GameManager = new GameManager();
             CheckersBoard = GameManager.Board;
-            GenerateBoard();
-            //Task.Run(() =>
-            //{
-                
-            //});       
+            GenerateBoard();     
         }
 
         private void GenerateBoard()
@@ -69,8 +65,11 @@ namespace CheckersGUI
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             IHeuristic heuristic = new SimpleHeuristic(CheckersBoard);
-            GameManager.SetPlayerBlack(new AIPlayer(new MinMaxAlgorithm(1, CheckersBoard, heuristic), CheckersBoard));
+            GameManager.SetPlayerBlack(new AIPlayer(new MinMaxAlgorithm(3, CheckersBoard, heuristic), CheckersBoard));
             GameManager.SetPlayerWhite(new AIPlayer(new MinMaxAlgorithm(1, CheckersBoard, heuristic), CheckersBoard));
+            Task.Run(() => {
+                GameManager.StartGame();
+            });
         }
     }
 }

@@ -46,7 +46,7 @@ namespace CheckersEngine.Players
             Board.InformPlayersAboutChange = false;
             Stack<Move> selected = AIAlgorithm.FindBestMove(offers);
             Board.InformPlayersAboutChange = true;
-            Thread.Sleep(100);
+            Thread.Sleep(new Random().Next(800, 1000));
             return selected;
         }
     }

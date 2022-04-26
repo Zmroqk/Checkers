@@ -21,6 +21,7 @@ namespace CheckersEngine
         public IPlayer? Winner;
         public event EventHandler<IPlayer> OnWinnerAnnouncement;
         public event EventHandler<IPlayer> OnPlayerTurnChange;
+        public event EventHandler BoardChanged;
 
         public Paths ActivePlayerMoves;
 
@@ -70,8 +71,14 @@ namespace CheckersEngine
             WhitePlayer.NoPiecesLeft += OnNoPiecesLeft;
             BlackPlayer.NoPiecesLeft += OnNoPiecesLeft;
             ArePlayersInitialized = true;
+        }
+
+        public void StartGame()
+        {
+            BoardChanged?.Invoke(this, null);
             OnPlayerTurnChange?.Invoke(this, WhitePlayer);
         }
+
         public void InitBoard()
         {
             Fields = new Field[BoardSize][];
@@ -124,6 +131,23 @@ namespace CheckersEngine
             }     
         }
 
+        public void ChangePlayer()
+        {
+            if (ActivePlayer == WhitePlayer)
+            {
+                ActivePlayer = BlackPlayer;
+            }
+            else
+            {
+                ActivePlayer = WhitePlayer;
+            }
+            if (InformPlayersAboutChange)
+            {
+                BoardChanged?.Invoke(this, null);
+                OnPlayerTurnChange?.Invoke(this, ActivePlayer);
+            }
+        }
+
         public void MovePiece(Piece piece, Stack<Move> moves)
         {
             if (!IsBoardInitialized && !ArePlayersInitialized)
@@ -135,20 +159,7 @@ namespace CheckersEngine
                 {
                     Move poppedMove = moves.Pop();
                     MoveHistory.Push(poppedMove);
-                    if (!InformPlayersAboutChange)
-                    {
-                        poppedMove.StartField.InformPieceChanged = false;
-                        poppedMove.DestinationField.InformPieceChanged = false;
-                        if(poppedMove.AttackedField != null)
-                            poppedMove.AttackedField.InformPieceChanged = false;
-                    }
-                    else
-                    {
-                        poppedMove.StartField.InformPieceChanged = true;
-                        poppedMove.DestinationField.InformPieceChanged = true;
-                        if (poppedMove.AttackedField != null)
-                            poppedMove.AttackedField.InformPieceChanged = true;
-                    }
+                    SetVisibility(poppedMove);
                     poppedMove.DestinationField.Piece = poppedMove.StartField.Piece;
                     poppedMove.StartField.Piece = null;                 
                     if (poppedMove.AttackedField != null)
@@ -158,6 +169,8 @@ namespace CheckersEngine
                         else
                             WhitePieces.Remove(poppedMove.AttackedPiece);
                         poppedMove.AttackedField.Piece = null;
+                        if(InformPlayersAboutChange)
+                            poppedMove.AttackedPiece.Destroy();
                     }
                     poppedMove.DestinationField.Piece.Field = poppedMove.DestinationField;
                     if (moves.Count == 0)
@@ -178,18 +191,7 @@ namespace CheckersEngine
                         }
                     }
                 }
-                if(ActivePlayer == WhitePlayer)
-                {
-                    ActivePlayer = BlackPlayer;
-                }
-                else
-                {
-                    ActivePlayer = WhitePlayer;
-                }
-                if (InformPlayersAboutChange)
-                {
-                    OnPlayerTurnChange?.Invoke(this, ActivePlayer);
-                }
+                ChangePlayer();
             }      
         }
 
@@ -201,27 +203,15 @@ namespace CheckersEngine
                 throw new ArgumentException();
             for (int i = 0; i < count; i++) {
                 Move poppedMove = MoveHistory.Pop();
-                if (!InformPlayersAboutChange)
-                {
-                    poppedMove.StartField.InformPieceChanged = false;
-                    poppedMove.DestinationField.InformPieceChanged = false;
-                    if (poppedMove.AttackedField != null)
-                        poppedMove.AttackedField.InformPieceChanged = false;
-                }
-                else
-                {
-                    poppedMove.StartField.InformPieceChanged = true;
-                    poppedMove.DestinationField.InformPieceChanged = true;
-                    if (poppedMove.AttackedField != null)
-                        poppedMove.AttackedField.InformPieceChanged = true;
-                }
+                SetVisibility(poppedMove);
                 poppedMove.StartField.Piece = poppedMove.DestinationField.Piece;
                 poppedMove.DestinationField.Piece = null;
                 if (poppedMove.AttackedField != null)
                 {
                     poppedMove.AttackedField.Piece = poppedMove.AttackedPiece;
+                    poppedMove.AttackedPiece.Field = poppedMove.AttackedField;
                     if (poppedMove.AttackedPiece.Color == CheckersColor.Black)
-                        BlackPieces.Add(poppedMove.AttackedPiece);
+                        BlackPieces.Add(poppedMove.AttackedPiece);                   
                     else
                         WhitePieces.Add(poppedMove.AttackedPiece);
                 }
@@ -231,14 +221,7 @@ namespace CheckersEngine
                     poppedMove.StartField.Piece.IsQueen = false;
                 }
             }
-            if (ActivePlayer == WhitePlayer)
-            {
-                ActivePlayer = BlackPlayer;
-            }
-            else
-            {
-                ActivePlayer = WhitePlayer;
-            }
+            ChangePlayer();
         }
 
         public Paths FindPossibleMoves(IPlayer player)
@@ -294,6 +277,24 @@ namespace CheckersEngine
                 if (!IsBoardInitialized)
                     throw new ArgumentNullException();
                 return Fields[index][secondIndex];
+            }
+        }
+
+        public void SetVisibility(Move move)
+        {
+            if (!InformPlayersAboutChange)
+            {
+                move.StartField.InformPieceChanged = false;
+                move.DestinationField.InformPieceChanged = false;
+                if (move.AttackedField != null)
+                    move.AttackedField.InformPieceChanged = false;
+            }
+            else
+            {
+                move.StartField.InformPieceChanged = true;
+                move.DestinationField.InformPieceChanged = true;
+                if (move.AttackedField != null)
+                    move.AttackedField.InformPieceChanged = true;
             }
         }
 

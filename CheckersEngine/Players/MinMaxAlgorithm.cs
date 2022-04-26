@@ -14,17 +14,20 @@ namespace CheckersEngine.Players
 
         short Level { get; set; }
 
+        Random Random { get; set; }
+
         public MinMaxAlgorithm(short level, Board board, IHeuristic heuristic)
         {
             Board = board;
             Heuristic = heuristic;
             Level = level;
+            Random = new Random();
         }
 
         public Stack<Move> FindBestMove(Paths offers)
         {
             double max = double.MinValue;
-            Stack<Move> bestMoves = null;
+            List<Stack<Move>> bestMoves = new List<Stack<Move>>();
             Piece[] pieces = offers.FoundPaths.Keys.ToArray();
             for(int i = 0; i < pieces.Length; i++)
             {
@@ -44,12 +47,17 @@ namespace CheckersEngine.Players
                     if (score > max)
                     {
                         max = score;
-                        bestMoves = move;
+                        bestMoves.Clear();
+                        bestMoves.Add(move);
+                    }
+                    else if(score == max)
+                    {
+                        bestMoves.Add(move);
                     }
                     Board.ActivePlayerMoves = offers;
                 }
             }
-            return bestMoves;
+            return bestMoves[Random.Next(0, bestMoves.Count)];
         }
 
         public double maxi(int depth)
@@ -77,6 +85,7 @@ namespace CheckersEngine.Players
                     if (score > max)
                         max = score;
                     Board.UndoMoves(count);
+                    Board.ActivePlayerMoves = newOffers;
                 }
             }
             return max;
@@ -108,6 +117,7 @@ namespace CheckersEngine.Players
                     if (score < min)
                         min = score;
                     Board.UndoMoves(count);
+                    Board.ActivePlayerMoves = newOffers;
                 }
             }
             return min;

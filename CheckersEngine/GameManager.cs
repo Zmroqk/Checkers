@@ -33,16 +33,29 @@ namespace CheckersEngine
         private void Board_OnPlayerTurnChange(object? sender, IPlayer e)
         {
             Paths offers = Board.FindPossibleMoves(Board.ActivePlayer);
-            Stack<Move> selected;
-            if (e == WhitePlayer)
+            if(offers.FoundPaths.Keys.Count == 0)
             {
-                selected = WhitePlayer.MakeMove(offers);
+                Board.ChangePlayer();
             }
             else
             {
-                selected = BlackPlayer.MakeMove(offers);
-            }
-            Board.MovePiece(selected.Peek().StartField.Piece, selected);
+                Stack<Move> selected;
+                if (e == WhitePlayer)
+                {
+                    selected = WhitePlayer.MakeMove(offers);
+                }
+                else
+                {
+                    selected = BlackPlayer.MakeMove(offers);
+                }
+                Board.MovePiece(selected.Peek().StartField.Piece, selected);
+            }      
+            
+        }
+
+        public void StartGame()
+        {
+            Board.StartGame();
         }
 
         public void SetPlayerWhite(IPlayer player)
