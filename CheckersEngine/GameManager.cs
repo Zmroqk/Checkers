@@ -53,6 +53,12 @@ namespace CheckersEngine
             
         }
 
+        public void EndGame()
+        {
+            Board.OnPlayerTurnChange -= Board_OnPlayerTurnChange;
+            Board.Dispose();
+        }
+
         public void StartGame()
         {
             Board.StartGame();

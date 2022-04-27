@@ -209,7 +209,11 @@ namespace CheckersEngine
                     else
                         fieldChecked = Field.Board[xFoundLocal, yFoundLocal];
                     Field nextFieldChecked = Field.Board[xLocal - 2, yLocal - 2];
-                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
+                    if(fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color == Color)
+                    {
+                        break;
+                    }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
                     {
                         if (!found)
                         {
@@ -247,7 +251,11 @@ namespace CheckersEngine
                     else
                         fieldChecked = Field.Board[xFoundLocal, yFoundLocal];
                     Field nextFieldChecked = Field.Board[xLocal - 2, yLocal + 2];
-                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
+                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color == Color)
+                    {
+                        break;
+                    }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
                     {
                         if (!found)
                         {
@@ -285,7 +293,11 @@ namespace CheckersEngine
                     else
                         fieldChecked = Field.Board[xFoundLocal, yFoundLocal];
                     Field nextFieldChecked = Field.Board[xLocal + 2, yLocal - 2];
-                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
+                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color == Color)
+                    {
+                        break;
+                    }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
                     {
                         if (!found)
                         {
@@ -323,7 +335,11 @@ namespace CheckersEngine
                     else
                         fieldChecked = Field.Board[xFoundLocal, yFoundLocal];
                     Field nextFieldChecked = Field.Board[xLocal + 2, yLocal + 2];
-                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
+                    if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color == Color)
+                    {
+                        break;
+                    }
+                    else if (fieldChecked != null && fieldChecked.Piece != null && fieldChecked.Piece.Color != Color && nextFieldChecked.Piece == null)
                     {
                         if (!found)
                         {

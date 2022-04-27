@@ -32,9 +32,6 @@ namespace CheckersGUI
         public MainWindow()
         {
             InitializeComponent();
-            GameManager = new GameManager();
-            CheckersBoard = GameManager.Board;
-            GenerateBoard();     
         }
 
         private void GenerateBoard()
@@ -64,6 +61,23 @@ namespace CheckersGUI
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if(GameManager != null)
+            {
+                GameManager.EndGame();
+            }
+            GameManager = new GameManager();
+            CheckersBoard = GameManager.Board;
+            if(GridFields != null)
+            {
+                for(int i = 0; i < BoardSize; i++)
+                {
+                    for (int j = 0; j < BoardSize; j++)
+                    {
+                        Board.Children.Remove(GridFields[i][j]);
+                    }
+                }
+            }           
+            GenerateBoard();
             short blackLevel = short.Parse(txbBlack.Text);
             short whiteLevel = short.Parse(txbWhite.Text);
             IHeuristic heuristic = new SimpleHeuristic(CheckersBoard);
