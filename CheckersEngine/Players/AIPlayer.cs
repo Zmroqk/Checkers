@@ -30,7 +30,7 @@ namespace CheckersEngine.Players
 
         public event EventHandler NoPiecesLeft;
 
-        short _piecesLeft = 8;
+        short _piecesLeft = 12;
         Board Board { get; set; }
 
         IAIAlgorithm AIAlgorithm { get; set; }

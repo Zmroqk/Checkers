@@ -99,13 +99,15 @@ namespace CheckersEngine
                     else
                     {
                         currentColor = CheckersColor.White;
-                        if ((i == 0 && j % 2 == 1) || (i == 1 && j % 2 == 0))
+                        if ((i == 0 && j % 2 == 1) || (i == 1 && j % 2 == 0) || (i == 2 && j % 2 == 1))
                         {
                             Fields[i][j].Piece = new Piece(Fields[i][j], CheckersColor.Black, BlackPlayer, counter++);
                             Fields[i][j].Piece.OnDestroy += Piece_OnDestroy;
                             BlackPieces.Add(Fields[i][j].Piece);
                         }
-                        else if ((i == BoardSize - 1 && j % 2 == 0) || (i == BoardSize - 2 && j % 2 == 1))
+                        else if ((i == BoardSize - 1 && j % 2 == 0) ||
+                                (i == BoardSize - 2 && j % 2 == 1) ||
+                                (i == BoardSize - 3 && j % 2 == 0))
                         {
                             Fields[i][j].Piece = new Piece(Fields[i][j], CheckersColor.White, WhitePlayer, counter++);
                             Fields[i][j].Piece.OnDestroy += Piece_OnDestroy;

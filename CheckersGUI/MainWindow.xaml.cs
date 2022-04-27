@@ -64,9 +64,11 @@ namespace CheckersGUI
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            short blackLevel = short.Parse(txbBlack.Text);
+            short whiteLevel = short.Parse(txbWhite.Text);
             IHeuristic heuristic = new SimpleHeuristic(CheckersBoard);
-            GameManager.SetPlayerBlack(new AIPlayer(new MinMaxAlgorithm(3, CheckersBoard, heuristic), CheckersBoard));
-            GameManager.SetPlayerWhite(new AIPlayer(new MinMaxAlgorithm(1, CheckersBoard, heuristic), CheckersBoard));
+            GameManager.SetPlayerBlack(new AIPlayer(new MinMaxAlgorithm(blackLevel, CheckersBoard, heuristic), CheckersBoard));
+            GameManager.SetPlayerWhite(new AIPlayer(new MinMaxAlgorithm(whiteLevel, CheckersBoard, heuristic), CheckersBoard));
             Task.Run(() => {
                 GameManager.StartGame();
             });

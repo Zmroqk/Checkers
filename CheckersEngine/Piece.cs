@@ -131,7 +131,7 @@ namespace CheckersEngine
                             moves.Add(stack);
                         }
                     }
-                    if (y - 1 > 0 && x + 1 < Board.BoardSize)
+                    if (y - 1 >= 0 && x + 1 < Board.BoardSize)
                     {
                         Field fieldChecked = Field.Board[x + 1, y - 1];
                         if (fieldChecked.Piece == null)
@@ -148,7 +148,7 @@ namespace CheckersEngine
                 }
                 else
                 {
-                    if (x - 1 > 0 && y - 1 > 0)
+                    if (x - 1 >= 0 && y - 1 >= 0)
                     {
                         Field fieldChecked = Field.Board[x - 1, y - 1];
                         if (fieldChecked.Piece == null)
@@ -163,7 +163,7 @@ namespace CheckersEngine
                         }
                     }
 
-                    if (x - 1 > 0 && y + 1 < Board.BoardSize)
+                    if (x - 1 >= 0 && y + 1 < Board.BoardSize)
                     {
                         Field fieldChecked = Field.Board[x - 1, y + 1];
                         if (fieldChecked.Piece == null)
