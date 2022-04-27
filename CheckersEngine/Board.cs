@@ -269,6 +269,18 @@ namespace CheckersEngine
                     }
                 }
             }
+            if(paths.FoundPaths.Values.Count > 0)
+            {
+                int maxAttackLength = paths.FoundPaths.Values.Max(s => s.Count);
+                Piece[] selectedPieces = paths.FoundPaths.Keys.ToArray();
+                for (int i = 0; i < selectedPieces.Length; i++)
+                {
+                    if (paths.FoundPaths[selectedPieces[i]].Count != maxAttackLength)
+                    {
+                        paths.FoundPaths.Remove(selectedPieces[i]);
+                    }
+                }
+            }
             ActivePlayerMoves = paths;
             return paths;
         }
