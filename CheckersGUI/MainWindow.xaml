@@ -40,5 +40,13 @@
             <Label Content="White level"/>
             <TextBox x:Name="txbWhite" Text="5"/>
         </StackPanel>
+        <Label Content="{Binding WinnerLabelContent}" 
+               HorizontalContentAlignment="Center" 
+               Panel.ZIndex="1" 
+               Canvas.Left="560" Canvas.Top="372" 
+               d:Content="You Have Won The Game" 
+               FontSize="30" FontStyle="Italic" FontWeight="Bold"
+               Foreground="Green"
+               Width="480" HorizontalAlignment="Left" VerticalAlignment="Top"/>
     </Canvas>
 </Window>

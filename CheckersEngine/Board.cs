@@ -29,6 +29,7 @@ namespace CheckersEngine
 
         private bool IsBoardInitialized;
         private bool ArePlayersInitialized;
+        private short drawCounter;
 
         public bool InformPlayersAboutChange;
 
@@ -40,6 +41,7 @@ namespace CheckersEngine
             IsBoardInitialized = false;
             ArePlayersInitialized = false;
             InformPlayersAboutChange = true;
+            drawCounter = 0;
         }
 
         private void OnNoPiecesLeft(object? sender, EventArgs e)
@@ -157,13 +159,16 @@ namespace CheckersEngine
             List<Stack<Move>> legalMoves = ActivePlayerMoves.FoundPaths[piece]; //TODO EXTEND MOVE SECURITY
             if (legalMoves.Contains(moves))
             {
+                bool queenMove = false;
                 while (moves.Count > 0)
                 {
                     Move poppedMove = moves.Pop();
                     MoveHistory.Push(poppedMove);
                     SetVisibility(poppedMove);
+                    if(poppedMove.StartField.Piece.IsQueen)
+                        queenMove = true;
                     poppedMove.DestinationField.Piece = poppedMove.StartField.Piece;
-                    poppedMove.StartField.Piece = null;                 
+                    poppedMove.StartField.Piece = null;
                     if (poppedMove.AttackedField != null)
                     {
                         if (poppedMove.AttackedPiece.Color == CheckersColor.Black)
@@ -191,6 +196,20 @@ namespace CheckersEngine
                             poppedMove.DestinationField.Piece.IsQueen = true;
                             poppedMove.ChangedToQueen = true;
                         }
+                    }
+                }
+                if (InformPlayersAboutChange)
+                {
+                    if (queenMove == true)
+                        drawCounter++;
+                    else
+                        drawCounter = 0;
+                    if(drawCounter == 15)
+                    {
+                        ActivePlayer = null;
+                        OnWinnerAnnouncement?.Invoke(this, null);
+                        Dispose();
+                        return;
                     }
                 }
                 ChangePlayer();
@@ -271,11 +290,19 @@ namespace CheckersEngine
             }
             if(paths.FoundPaths.Values.Count > 0)
             {
-                int maxAttackLength = paths.FoundPaths.Values.Max(s => s.Count);
+                int maxAttackLength = paths.FoundPaths.Values.Max(l => l.Max(s => s.Count));
                 Piece[] selectedPieces = paths.FoundPaths.Keys.ToArray();
                 for (int i = 0; i < selectedPieces.Length; i++)
                 {
-                    if (paths.FoundPaths[selectedPieces[i]].Count != maxAttackLength)
+                    List<Stack<Move>> moves = paths.FoundPaths[selectedPieces[i]];
+                    for(int j = 0; j < moves.Count; j++)
+                    {
+                        if (moves[j].Count != maxAttackLength)
+                        {
+                            moves.Remove(moves[j--]);
+                        }
+                    }
+                    if(moves.Count == 0)
                     {
                         paths.FoundPaths.Remove(selectedPieces[i]);
                     }

@@ -16,22 +16,36 @@ using CheckersGUI.Components;
 using CheckersEngine;
 using CheckersEngine.Players;
 using CheckersEngine.Heuristics;
+using System.ComponentModel;
 
 namespace CheckersGUI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public string WinnerLabelContent
+        {
+            get { return _winnerLabelContent; }
+            set { 
+                _winnerLabelContent = value; 
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WinnerLabelContent))); 
+            }
+        }
+        string _winnerLabelContent;
+
         int BoardSize = 8;
         FieldGUI[][] GridFields;
         GameManager GameManager;
         Board CheckersBoard;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
         }
 
         private void GenerateBoard()
@@ -61,6 +75,7 @@ namespace CheckersGUI
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            WinnerLabelContent = "";
             if(GameManager != null)
             {
                 GameManager.EndGame();
@@ -78,6 +93,7 @@ namespace CheckersGUI
                 }
             }           
             GenerateBoard();
+            CheckersBoard.OnWinnerAnnouncement += CheckersBoard_OnWinnerAnnouncement;
             short blackLevel = short.Parse(txbBlack.Text);
             short whiteLevel = short.Parse(txbWhite.Text);
             IHeuristic heuristic = new SimpleHeuristic(CheckersBoard);
@@ -86,6 +102,14 @@ namespace CheckersGUI
             Task.Run(() => {
                 GameManager.StartGame();
             });
+        }
+
+        private void CheckersBoard_OnWinnerAnnouncement(object? sender, IPlayer e)
+        {
+            if (e == null)
+                WinnerLabelContent = "Draw";
+            else
+                WinnerLabelContent = $"{(e.Color == CheckersColor.White ? "White" : "Black")} wins";
         }
     }
 }
