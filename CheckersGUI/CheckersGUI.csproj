@@ -5,6 +5,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <PackageIcon>checkers.ico</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,6 +18,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CheckersEngine\CheckersEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="checkers.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="checkers.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

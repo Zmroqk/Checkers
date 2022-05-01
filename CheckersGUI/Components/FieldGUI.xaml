@@ -7,11 +7,13 @@
              mc:Ignorable="d"
              d:DesignHeight="80" d:DesignWidth="80">
     <Border x:Name="border" d:Background="White" BorderBrush="Black" BorderThickness="2" Width="80" Height="80">
-        <Canvas Width="80" Height="80">
-            <Border Canvas.Top="30" Canvas.Left="30" Panel.ZIndex="1" d:Background="Yellow" Background="{Binding PieceColorQueen}" Width="20" Height="20" CornerRadius="20"/>
-            <Border Canvas.Left="20" Canvas.Top="20" d:Background="Black" Background="{Binding PieceColor}" Width="40" Height="40" CornerRadius="20">
-                <Button Background="Transparent" BorderBrush="Transparent" Click="Button_Click"/>
-            </Border>
-        </Canvas>
+        <Button Background="Transparent" BorderBrush="Transparent" Click="Button_Click" Width="48" Height="48" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            <Canvas Width="40" Height="40">
+                <Border Canvas.Left="-2" Canvas.Top="-2" Panel.ZIndex="2" BorderBrush="Blue" BorderThickness="{Binding HighlightThinkness}" Width="44" Height="44" CornerRadius="20"/>
+                <Border Canvas.Top="10" Canvas.Left="10" Panel.ZIndex="1" d:Background="Yellow" Background="{Binding PieceColorQueen}" Width="20" Height="20" CornerRadius="20"/>
+                <Border Panel.ZIndex="0" d:Background="Black" Background="{Binding PieceColor}" Width="40" Height="40" CornerRadius="20"/>
+            </Canvas>
+        </Button>
+
     </Border>
 </UserControl>

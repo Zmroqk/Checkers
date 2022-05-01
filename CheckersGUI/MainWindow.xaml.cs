@@ -17,6 +17,8 @@ using CheckersEngine;
 using CheckersEngine.Players;
 using CheckersEngine.Heuristics;
 using System.ComponentModel;
+using CheckersGUI.Players;
+using CheckersEngine.Analytics;
 
 namespace CheckersGUI
 {
@@ -25,27 +27,30 @@ namespace CheckersGUI
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public string WinnerLabelContent
-        {
-            get { return _winnerLabelContent; }
-            set { 
-                _winnerLabelContent = value; 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WinnerLabelContent))); 
-            }
-        }
-        string _winnerLabelContent;
-
         int BoardSize = 8;
         FieldGUI[][] GridFields;
         GameManager GameManager;
         Board CheckersBoard;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        string[] heuristics = new string[2] { "Simple", "Area" };
+        string[] algorithms = new string[1] { "MinMax" };
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+       
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
+            cmbHeuristicBlack.ItemsSource = heuristics;
+            cmbHeuristicWhite.ItemsSource = heuristics;
+            cmbAIAlgorithmBlack.ItemsSource = algorithms;
+            cmbAIAlgorithmWhite.ItemsSource = algorithms;
+            SelectedItemBlack = heuristics[0];
+            SelectedItemWhite = heuristics[0];
+            SelectedAlgorithmBlack = algorithms[0];
+            SelectedAlgorithmWhite = algorithms[0];
+            IsWhiteAI = true;
+            IsBlackAI = true;
         }
 
         private void GenerateBoard()
@@ -96,9 +101,48 @@ namespace CheckersGUI
             CheckersBoard.OnWinnerAnnouncement += CheckersBoard_OnWinnerAnnouncement;
             short blackLevel = short.Parse(txbBlack.Text);
             short whiteLevel = short.Parse(txbWhite.Text);
-            IHeuristic heuristic = new SimpleHeuristic(CheckersBoard);
-            GameManager.SetPlayerBlack(new AIPlayer(new MinMaxAlgorithm(blackLevel, CheckersBoard, heuristic), CheckersBoard));
-            GameManager.SetPlayerWhite(new AIPlayer(new MinMaxAlgorithm(whiteLevel, CheckersBoard, heuristic), CheckersBoard));
+            IHeuristic blackHeuristic;
+            IHeuristic whiteHeuristic;
+            IPlayer blackPlayer;
+            IPlayer whitePlayer;
+            if (SelectedItemBlack == "Simple")
+            {
+                blackHeuristic = new SimpleHeuristic(CheckersBoard);
+            }
+            else
+            {
+                blackHeuristic = new AreaHeurestic(CheckersBoard);
+            }
+            if (SelectedItemWhite == "Simple")
+            {
+                whiteHeuristic = new SimpleHeuristic(CheckersBoard);
+            }
+            else
+            {
+                whiteHeuristic = new AreaHeurestic(CheckersBoard);
+            }
+            if (IsWhiteAI)
+            {
+                IAnalytics analytics = new SimpleAnalytics();
+                anWhite.Stats = analytics;
+                whitePlayer = new AIPlayer(new MinMaxAlgorithm(whiteLevel, CheckersBoard, whiteHeuristic, analytics), CheckersBoard);
+            }
+            else
+            {
+                whitePlayer = new Player(GridFields);
+            }
+            if (IsBlackAI)
+            {
+                IAnalytics analytics = new SimpleAnalytics();
+                anBlack.Stats = analytics;
+                blackPlayer = new AIPlayer(new MinMaxAlgorithm(blackLevel, CheckersBoard, blackHeuristic, analytics), CheckersBoard);
+            }
+            else
+            {
+                blackPlayer = new Player(GridFields);
+            }
+            GameManager.SetPlayerBlack(blackPlayer);
+            GameManager.SetPlayerWhite(whitePlayer);
             Task.Run(() => {
                 GameManager.StartGame();
             });

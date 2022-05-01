@@ -52,6 +52,23 @@ namespace CheckersGUI.Components
         }
         Brush _pieceColorQueen;
 
+        public int HighlightThinkness
+        {
+            get
+            {
+                return _highlightThinkness;
+            }
+            set
+            {
+                _highlightThinkness = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HighlightThinkness)));
+            }
+        }
+        int _highlightThinkness;
+
+        public Move CurrentMove { get; set; }
+        public int MoveIndex { get; set; }
+
         public FieldGUI()
         {
             InitializeComponent();
@@ -64,8 +81,6 @@ namespace CheckersGUI.Components
             border.Background = new SolidColorBrush(color);
             FieldRef = fieldRef;
             FieldRef.Board.BoardChanged += Board_BoardChanged;
-            //FieldRef.PieceChanged += FieldRef_PieceChanged;
-            //FieldRef_PieceChanged(null, FieldRef.Piece);
         }
 
         private void Board_BoardChanged(object? sender, EventArgs e)
@@ -93,35 +108,34 @@ namespace CheckersGUI.Components
             });
         }
 
-        private void FieldRef_PieceChanged(object? sender, Piece? e)
+        public void SetColor(CheckersEngine.CheckersColor color, bool isQueen)
         {
-            try
+            if (color == CheckersColor.White)
+                PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
+            else
+                PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
+
+            if (isQueen)
             {
-                Dispatcher.Invoke(() =>
-                {
-                    if (e != null)
-                    {
-                        if (e.Color == CheckersColor.White)
-                            PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
-                        else
-                            PieceColor = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
-                    }
-                    else
-                        PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-                });            
+                PieceColorQueen = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
             }
-            catch(Exception ex)
+            else
             {
-                Debug.WriteLine(ex.Message, "Error");
+                PieceColorQueen = new SolidColorBrush(Color.FromArgb(a: 0, 0, 0, 0));
             }
-           
+        }
+
+        public void SetTransparent()
+        {
+            PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+            PieceColorQueen = new SolidColorBrush(Color.FromArgb(a: 0, 0, 0, 0));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
+        public event EventHandler<FieldGUI> ButtonClicked;
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            PieceColor = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+            ButtonClicked?.Invoke(this, this);
         }
     }
 }

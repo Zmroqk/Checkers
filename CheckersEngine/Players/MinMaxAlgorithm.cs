@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CheckersEngine.Analytics;
 using CheckersEngine.Heuristics;
 
 namespace CheckersEngine.Players
@@ -11,21 +12,26 @@ namespace CheckersEngine.Players
     {
         Board Board { get; set; }
         IHeuristic Heuristic { get; set; }
+        IAnalytics? Analytics { get; set; }
 
         short Level { get; set; }
 
         Random Random { get; set; }
 
-        public MinMaxAlgorithm(short level, Board board, IHeuristic heuristic)
+        public MinMaxAlgorithm(short level, Board board, IHeuristic heuristic, IAnalytics? analytics)
         {
             Board = board;
             Heuristic = heuristic;
             Level = level;
             Random = new Random();
+            Analytics = analytics;
         }
 
         public Stack<Move> FindBestMove(Paths offers)
         {
+            if(Analytics != null)
+                Analytics.Count++;
+            DateTime start = DateTime.Now;
             double max = double.MinValue;
             List<Stack<Move>> bestMoves = new List<Stack<Move>>();
             Piece[] pieces = offers.FoundPaths.Keys.ToArray();
@@ -57,11 +63,16 @@ namespace CheckersEngine.Players
                     Board.ActivePlayerMoves = offers;
                 }
             }
+            DateTime end = DateTime.Now;
+            if (Analytics != null)
+                Analytics.Time += (end - start).TotalMilliseconds;
             return bestMoves[Random.Next(0, bestMoves.Count)];
         }
 
         public double maxi(int depth)
         {
+            if(Analytics != null)
+                Analytics.VisitedNodes++;
             HeuristicEvaluationResult result = Heuristic.Evaluate();
             CheckersColor activeColor = Board.ActivePlayer.Color;
             if (depth == 0) {
@@ -93,6 +104,8 @@ namespace CheckersEngine.Players
 
         public double mini(int depth)
         {
+            if (Analytics != null)
+                Analytics.VisitedNodes++;
             HeuristicEvaluationResult result = Heuristic.Evaluate();
             CheckersColor activeColor = Board.ActivePlayer.Color;
             if (depth == 0)

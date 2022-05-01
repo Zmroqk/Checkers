@@ -37,7 +37,7 @@ namespace CheckersEngine
         {            
             BlackPieces = new List<Piece>();
             WhitePieces = new List<Piece>();
-            MoveHistory = new Stack<Move>();
+            MoveHistory = new Stack<Move>();          
             IsBoardInitialized = false;
             ArePlayersInitialized = false;
             InformPlayersAboutChange = true;

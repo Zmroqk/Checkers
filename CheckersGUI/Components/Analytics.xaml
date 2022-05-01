@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="CheckersGUI.Components.Analytics"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CheckersGUI.Components"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="200">
+    <StackPanel>
+        <Label Content="{Binding Label}" d:Content="{Binding Label}"/>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Avg. Time: " HorizontalContentAlignment="Center"/>
+            <Label d:Content="26123" Content="{Binding AverageTime}" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Nodes: " HorizontalContentAlignment="Center"/>
+            <Label d:Content="26123" Content="{Binding Nodes}" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Moves: " HorizontalContentAlignment="Center"/>
+            <Label d:Content="26123" Content="{Binding Moves}" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

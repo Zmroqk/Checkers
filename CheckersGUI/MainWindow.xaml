@@ -4,9 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CheckersGUI"
+        xmlns:component="clr-namespace:CheckersGUI.Components"
         mc:Ignorable="d"
+        Icon="checkers.ico"
         Background="Gray"
         Title="MainWindow" Height="900" Width="1600">
+    <Window.Resources>
+        <Style TargetType="Button">
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Canvas>
         <Grid Canvas.Left="480" Canvas.Top="90" x:Name="Board" Height="720" Width="640" Background="SaddleBrown">
             <Grid.ColumnDefinitions>
@@ -32,21 +44,34 @@
             </Grid.RowDefinitions>
             <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="8"  Width="300" Height="30" Content="Start Game" Click="Button_Click" Background="White"/>
         </Grid>
-        <StackPanel Width="150" Canvas.Left="20" Canvas.Top="400">
+        <CheckBox x:Name="chbBlackAI" IsChecked="{Binding IsBlackAI}" Canvas.Left="20" Canvas.Top="330" Content="Black is AI"/>
+        <StackPanel Width="150" Canvas.Left="20" Canvas.Top="350" Visibility="{Binding BlackVisibility}">
+            <ComboBox x:Name="cmbHeuristicBlack" SelectedItem="{Binding SelectedItemBlack}"/>
+            <ComboBox x:Name="cmbAIAlgorithmBlack" SelectedItem="{Binding SelectedAlgorithmBlack}"/>
             <Label Content="Black level"/>
             <TextBox x:Name="txbBlack" Text="5"/>
         </StackPanel>
-        <StackPanel Width="150" Canvas.Left="20" Canvas.Top="450">
+        <CheckBox x:Name="chbWhiteAI" IsChecked="{Binding IsWhiteAI}" Canvas.Left="20" Canvas.Top="480" Content="White is AI"/>
+        <StackPanel Width="150" Canvas.Left="20" Canvas.Top="500" Visibility="{Binding WhiteVisibility}">
+            <ComboBox x:Name="cmbHeuristicWhite" SelectedItem="{Binding SelectedItemWhite}"/>
+            <ComboBox x:Name="cmbAIAlgorithmWhite" SelectedItem="{Binding SelectedAlgorithmWhite}"/>
             <Label Content="White level"/>
             <TextBox x:Name="txbWhite" Text="5"/>
         </StackPanel>
         <Label Content="{Binding WinnerLabelContent}" 
-               HorizontalContentAlignment="Center" 
+               HorizontalContentAlignment="Center"
+               IsHitTestVisible="False"
                Panel.ZIndex="1" 
                Canvas.Left="560" Canvas.Top="372" 
                d:Content="You Have Won The Game" 
                FontSize="30" FontStyle="Italic" FontWeight="Bold"
                Foreground="Green"
                Width="480" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <StackPanel Canvas.Right="20" Canvas.Top="20" Visibility="{Binding BlackVisibility}">
+            <component:Analytics x:Name="anBlack" Label="Black"/>
+        </StackPanel>
+        <StackPanel Canvas.Right="20" Canvas.Top="120" Visibility="{Binding WhiteVisibility}">
+            <component:Analytics x:Name="anWhite" Label="White"/>
+        </StackPanel>
     </Canvas>
 </Window>

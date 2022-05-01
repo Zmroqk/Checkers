@@ -32,6 +32,8 @@ namespace CheckersEngine
 
         private void Board_OnPlayerTurnChange(object? sender, IPlayer e)
         {
+            if (Board == null)
+                return;
             Paths offers = Board.FindPossibleMoves(Board.ActivePlayer);
             if(offers.FoundPaths.Keys.Count == 0)
             {
@@ -48,6 +50,8 @@ namespace CheckersEngine
                 {
                     selected = BlackPlayer.MakeMove(offers);
                 }
+                if (Board == null)
+                    return;
                 Board.MovePiece(selected.Peek().StartField.Piece, selected);
             }      
             
@@ -57,6 +61,7 @@ namespace CheckersEngine
         {
             Board.OnPlayerTurnChange -= Board_OnPlayerTurnChange;
             Board.Dispose();
+            Board = null;
         }
 
         public void StartGame()
