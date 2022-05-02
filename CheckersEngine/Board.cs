@@ -10,6 +10,7 @@ namespace CheckersEngine
     public class Board : IDisposable
     {
         public const int BoardSize = 8;
+        public const int DrawMaxMoves = 15;
 
         public Field[][] Fields;
         public List<Piece> BlackPieces;
@@ -29,7 +30,7 @@ namespace CheckersEngine
 
         private bool IsBoardInitialized;
         private bool ArePlayersInitialized;
-        private short drawCounter;
+        public short DrawCounter { get; private set; }
 
         public bool InformPlayersAboutChange;
 
@@ -41,7 +42,7 @@ namespace CheckersEngine
             IsBoardInitialized = false;
             ArePlayersInitialized = false;
             InformPlayersAboutChange = true;
-            drawCounter = 0;
+            DrawCounter = 0;
         }
 
         private void OnNoPiecesLeft(object? sender, EventArgs e)
@@ -163,6 +164,7 @@ namespace CheckersEngine
                 while (moves.Count > 0)
                 {
                     Move poppedMove = moves.Pop();
+                    poppedMove.DrawCounter = DrawCounter;
                     MoveHistory.Push(poppedMove);
                     SetVisibility(poppedMove);
                     if(poppedMove.StartField.Piece.IsQueen)
@@ -198,13 +200,13 @@ namespace CheckersEngine
                         }
                     }
                 }
+                if (queenMove == true)
+                    DrawCounter++;
+                else
+                    DrawCounter = 0;
                 if (InformPlayersAboutChange)
                 {
-                    if (queenMove == true)
-                        drawCounter++;
-                    else
-                        drawCounter = 0;
-                    if(drawCounter == 15)
+                    if(DrawCounter == DrawMaxMoves)
                     {
                         ActivePlayer = null;
                         OnWinnerAnnouncement?.Invoke(this, null);
@@ -222,6 +224,7 @@ namespace CheckersEngine
                 throw new ArgumentNullException();
             if (count > MoveHistory.Count)
                 throw new ArgumentException();
+            bool queenMove = false;
             for (int i = 0; i < count; i++) {
                 Move poppedMove = MoveHistory.Pop();
                 SetVisibility(poppedMove);
@@ -241,7 +244,10 @@ namespace CheckersEngine
                 {
                     poppedMove.StartField.Piece.IsQueen = false;
                 }
-            }
+                if(i == count - 1 && poppedMove.StartField.Piece.IsQueen)
+                    queenMove = true;
+                DrawCounter = poppedMove.DrawCounter;
+            }          
             ChangePlayer();
         }
 

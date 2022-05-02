@@ -50,6 +50,20 @@ namespace CheckersGUI.Components
         }
         double _averageTime;
 
+        public double AverageNodes
+        {
+            get
+            {
+                return _averageNodes;
+            }
+            set
+            {
+                _averageNodes = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AverageNodes)));
+            }
+        }
+        double _averageNodes;
+
         public int Nodes
         {
             get
@@ -99,6 +113,7 @@ namespace CheckersGUI.Components
             Moves = Stats.Count;
             Nodes = Stats.VisitedNodes;
             AverageTime = Stats.Time / 1000 / Stats.Count;
+            AverageNodes = Stats.VisitedNodes / (double)Stats.Count;
         }
     }
 }

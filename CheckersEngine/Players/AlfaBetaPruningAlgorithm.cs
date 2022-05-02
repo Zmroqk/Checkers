@@ -8,7 +8,7 @@ using CheckersEngine.Heuristics;
 
 namespace CheckersEngine.Players
 {
-    public class MinMaxAlgorithm : IAIAlgorithm
+    public class AlfaBetaPruningAlgorithm : IAIAlgorithm
     {
         Board Board { get; set; }
         IHeuristic Heuristic { get; set; }
@@ -18,7 +18,7 @@ namespace CheckersEngine.Players
 
         Random Random { get; set; }
 
-        public MinMaxAlgorithm(short level, Board board, IHeuristic heuristic, IAnalytics? analytics)
+        public AlfaBetaPruningAlgorithm(short level, Board board, IHeuristic heuristic, IAnalytics? analytics)
         {
             Board = board;
             Heuristic = heuristic;
@@ -35,18 +35,18 @@ namespace CheckersEngine.Players
             double max = double.MinValue;
             List<Stack<Move>> bestMoves = new List<Stack<Move>>();
             Piece[] pieces = offers.FoundPaths.Keys.ToArray();
-            for(int i = 0; i < pieces.Length; i++)
+            for (int i = 0; i < pieces.Length; i++)
             {
                 List<Stack<Move>> moves = offers.FoundPaths[pieces[i]];
-                for(int j = 0; j < moves.Count; j++)
+                for (int j = 0; j < moves.Count; j++)
                 {
                     Stack<Move> move = moves[j];
                     Stack<Move> moveCopy = new Stack<Move>(move);
                     int count = move.Count;
                     Board.MovePiece(pieces[i], move);
-                    double score = mini(Level - 1);
+                    double score = AlphaBetaMini(double.MinValue, double.MaxValue, Level - 1);
                     Board.UndoMoves(count);
-                    while(moveCopy.Count > 0)
+                    while (moveCopy.Count > 0)
                     {
                         move.Push(moveCopy.Pop());
                     }
@@ -56,7 +56,7 @@ namespace CheckersEngine.Players
                         bestMoves.Clear();
                         bestMoves.Add(move);
                     }
-                    else if(score == max)
+                    else if (score == max)
                     {
                         bestMoves.Add(move);
                     }
@@ -69,9 +69,9 @@ namespace CheckersEngine.Players
             return bestMoves[Random.Next(0, bestMoves.Count)];
         }
 
-        public double maxi(int depth)
+        public double AlphaBetaMax(double alpha, double beta, int depth)
         {
-            if (Analytics != null)
+            if(Analytics != null)
                 Analytics.VisitedNodes++;
             HeuristicEvaluationResult result = Heuristic.Evaluate();
             CheckersColor activeColor = Board.ActivePlayer.Color;
@@ -81,7 +81,6 @@ namespace CheckersEngine.Players
                 else
                     return result.BlackPlayerScore - result.WhitePlayerScore;
             }
-            double max = double.MinValue;
             Paths newOffers = Board.FindPossibleMoves(Board.ActivePlayer);
             Piece[] pieces = newOffers.FoundPaths.Keys.ToArray();
             if (pieces.Length > 0)
@@ -94,23 +93,30 @@ namespace CheckersEngine.Players
                         Stack<Move> move = moves[j];
                         int count = move.Count;
                         Board.MovePiece(pieces[i], move);
-                        double score = mini(depth - 1);
-                        if (score > max)
-                            max = score;
+                        double score = AlphaBetaMini(alpha, beta, depth - 1);
                         Board.UndoMoves(count);
                         Board.ActivePlayerMoves = newOffers;
+                        if (score >= beta)
+                        {
+                            return beta;
+                        }
+                        if (score > alpha)
+                        {
+                            alpha = score;
+                        }
                     }
                 }
             }
             else
             {
                 Board.ChangePlayer();
-                maxi(depth - 1);
+                AlphaBetaMini(alpha, beta, depth - 1);
                 Board.ChangePlayer();
             }
-            return max;
+            return alpha;
         }
-        public double mini(int depth)
+
+        public double AlphaBetaMini(double alpha, double beta, int depth)
         {
             if (Analytics != null)
                 Analytics.VisitedNodes++;
@@ -123,7 +129,6 @@ namespace CheckersEngine.Players
                 else
                     return result.WhitePlayerScore - result.BlackPlayerScore;
             }
-            double min = double.MaxValue;
             Paths newOffers = Board.FindPossibleMoves(Board.ActivePlayer);
             Piece[] pieces = newOffers.FoundPaths.Keys.ToArray();
             if (pieces.Length > 0)
@@ -136,21 +141,23 @@ namespace CheckersEngine.Players
                         Stack<Move> move = moves[j];
                         int count = move.Count;
                         Board.MovePiece(pieces[i], move);
-                        double score = maxi(depth - 1);
-                        if (score < min)
-                            min = score;
+                        double score = AlphaBetaMax(alpha, beta, depth - 1);
                         Board.UndoMoves(count);
                         Board.ActivePlayerMoves = newOffers;
+                        if (score <= alpha)
+                            return alpha;
+                        if (score < beta)
+                            beta = score;
                     }
                 }
             }
             else
             {
                 Board.ChangePlayer();
-                maxi(depth - 1);
+                AlphaBetaMax(alpha, beta, depth - 1);
                 Board.ChangePlayer();
             }
-            return min;
+            return beta;
         }
     }
 }

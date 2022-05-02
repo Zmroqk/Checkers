@@ -32,8 +32,8 @@ namespace CheckersGUI
         GameManager GameManager;
         Board CheckersBoard;
 
-        string[] heuristics = new string[2] { "Simple", "Area" };
-        string[] algorithms = new string[1] { "MinMax" };
+        string[] heuristics = new string[] { "Simple", "Area", "MixedHeuristic (0.6x Simple, 0.4x Area)", "MixedHeuristic (0.4x Simple, 0.6x Area)" };
+        string[] algorithms = new string[] { "MinMax", "AlphaBetaPruning" };
 
         public event PropertyChangedEventHandler? PropertyChanged;
        
@@ -99,33 +99,15 @@ namespace CheckersGUI
             }           
             GenerateBoard();
             CheckersBoard.OnWinnerAnnouncement += CheckersBoard_OnWinnerAnnouncement;
-            short blackLevel = short.Parse(txbBlack.Text);
-            short whiteLevel = short.Parse(txbWhite.Text);
-            IHeuristic blackHeuristic;
-            IHeuristic whiteHeuristic;
+            IHeuristic blackHeuristic = SelectHeuristic(CheckersColor.Black);
+            IHeuristic whiteHeuristic = SelectHeuristic(CheckersColor.White);
+            IAIAlgorithm blackAIAlgorithm = SelectAlgorithm(CheckersColor.Black, blackHeuristic);
+            IAIAlgorithm whiteAIAlgorithm = SelectAlgorithm(CheckersColor.White, whiteHeuristic);
             IPlayer blackPlayer;
-            IPlayer whitePlayer;
-            if (SelectedItemBlack == "Simple")
-            {
-                blackHeuristic = new SimpleHeuristic(CheckersBoard);
-            }
-            else
-            {
-                blackHeuristic = new AreaHeurestic(CheckersBoard);
-            }
-            if (SelectedItemWhite == "Simple")
-            {
-                whiteHeuristic = new SimpleHeuristic(CheckersBoard);
-            }
-            else
-            {
-                whiteHeuristic = new AreaHeurestic(CheckersBoard);
-            }
+            IPlayer whitePlayer;          
             if (IsWhiteAI)
             {
-                IAnalytics analytics = new SimpleAnalytics();
-                anWhite.Stats = analytics;
-                whitePlayer = new AIPlayer(new MinMaxAlgorithm(whiteLevel, CheckersBoard, whiteHeuristic, analytics), CheckersBoard);
+                whitePlayer = new AIPlayer(whiteAIAlgorithm, CheckersBoard);
             }
             else
             {
@@ -133,9 +115,7 @@ namespace CheckersGUI
             }
             if (IsBlackAI)
             {
-                IAnalytics analytics = new SimpleAnalytics();
-                anBlack.Stats = analytics;
-                blackPlayer = new AIPlayer(new MinMaxAlgorithm(blackLevel, CheckersBoard, blackHeuristic, analytics), CheckersBoard);
+                blackPlayer = new AIPlayer(blackAIAlgorithm, CheckersBoard);
             }
             else
             {
@@ -146,6 +126,91 @@ namespace CheckersGUI
             Task.Run(() => {
                 GameManager.StartGame();
             });
+        }
+
+        IHeuristic SelectHeuristic(CheckersColor Color)
+        {
+            IHeuristic heuristic;
+            if (Color == CheckersColor.White)
+            {
+                if (SelectedItemWhite == heuristics[0])
+                {
+                    heuristic = new SimpleHeuristic(CheckersBoard);
+                }
+                else if(SelectedItemWhite == heuristics[1])
+                {
+                    heuristic = new AreaHeurestic(CheckersBoard);
+                }
+                else if(SelectedItemWhite == heuristics[2])
+                {
+                    SimpleHeuristic simpleHeuristic = new SimpleHeuristic(CheckersBoard);
+                    AreaHeurestic areaHeurestic = new AreaHeurestic(CheckersBoard);
+                    heuristic = new MixedHeuristic(new (IHeuristic heuristic, double weight)[] { (simpleHeuristic, 0.6d), (areaHeurestic, 0.4d) });
+                }
+                else
+                {
+                    SimpleHeuristic simpleHeuristic = new SimpleHeuristic(CheckersBoard);
+                    AreaHeurestic areaHeurestic = new AreaHeurestic(CheckersBoard);
+                    heuristic = new MixedHeuristic(new (IHeuristic heuristic, double weight)[] { (simpleHeuristic, 0.4d), (areaHeurestic, 0.6d) });
+                }
+            }
+            else
+            {
+                if (SelectedItemBlack == heuristics[0])
+                {
+                    heuristic = new SimpleHeuristic(CheckersBoard);
+                }
+                else if (SelectedItemBlack == heuristics[1])
+                {
+                    heuristic = new AreaHeurestic(CheckersBoard);
+                }
+                else if(SelectedItemBlack == heuristics[2])
+                {
+                    SimpleHeuristic simpleHeuristic = new SimpleHeuristic(CheckersBoard);
+                    AreaHeurestic areaHeurestic = new AreaHeurestic(CheckersBoard);
+                    heuristic = new MixedHeuristic(new (IHeuristic heuristic, double weight)[] { (simpleHeuristic, 0.6d), (areaHeurestic, 0.4d) });
+                }
+                else
+                {
+                    SimpleHeuristic simpleHeuristic = new SimpleHeuristic(CheckersBoard);
+                    AreaHeurestic areaHeurestic = new AreaHeurestic(CheckersBoard);
+                    heuristic = new MixedHeuristic(new (IHeuristic heuristic, double weight)[] { (simpleHeuristic, 0.4d), (areaHeurestic, 0.6d) });
+                }
+            }
+            return heuristic;
+        }
+
+        IAIAlgorithm SelectAlgorithm(CheckersColor Color, IHeuristic heuristic)
+        {
+            IAIAlgorithm algorithm;
+            IAnalytics analytics = new SimpleAnalytics();
+            if (Color == CheckersColor.White)
+            {
+                anWhite.Stats = analytics;
+                short whiteLevel = short.Parse(txbWhite.Text);
+                if (SelectedAlgorithmWhite == "MinMax")
+                {                    
+                    algorithm = new MinMaxAlgorithm(whiteLevel, CheckersBoard, heuristic, analytics);
+                }
+                else
+                {
+                    algorithm = new AlfaBetaPruningAlgorithm(whiteLevel, CheckersBoard, heuristic, analytics);
+                }
+            }
+            else
+            {
+                anBlack.Stats = analytics;
+                short blackLevel = short.Parse(txbBlack.Text);
+                if (SelectedAlgorithmBlack == "MinMax")
+                {
+                    algorithm = new MinMaxAlgorithm(blackLevel, CheckersBoard, heuristic, analytics);
+                }
+                else
+                {
+                    algorithm = new AlfaBetaPruningAlgorithm(blackLevel, CheckersBoard, heuristic, analytics);
+                }
+            }
+            return algorithm;
         }
 
         private void CheckersBoard_OnWinnerAnnouncement(object? sender, IPlayer e)

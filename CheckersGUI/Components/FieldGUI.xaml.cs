@@ -38,6 +38,20 @@ namespace CheckersGUI.Components
         }
         Brush _pieceColor;
 
+        public Brush PieceColorBorder
+        {
+            get
+            {
+                return _pieceColorBorder;
+            }
+            set
+            {
+                _pieceColorBorder = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PieceColorBorder)));
+            }
+        }
+        Brush _pieceColorBorder;
+
         public Brush PieceColorQueen
         {
             get
@@ -78,6 +92,8 @@ namespace CheckersGUI.Components
 
         public FieldGUI(Color color, Field fieldRef) : this()
         {
+            if (color == Colors.White)
+                btn.IsHitTestVisible = false;
             border.Background = new SolidColorBrush(color);
             FieldRef = fieldRef;
             FieldRef.Board.BoardChanged += Board_BoardChanged;
@@ -89,6 +105,7 @@ namespace CheckersGUI.Components
             {
                 if (FieldRef.Piece != null)
                 {
+                    PieceColorBorder = new SolidColorBrush(Colors.Gray);
                     if (FieldRef.Piece.Color == CheckersColor.White)
                         PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
                     else
@@ -104,12 +121,17 @@ namespace CheckersGUI.Components
                     }
                 }
                 else
+                {
                     PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                    PieceColorBorder = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                }
+                    
             });
         }
 
         public void SetColor(CheckersEngine.CheckersColor color, bool isQueen)
         {
+            PieceColorBorder = new SolidColorBrush(Colors.Gray);
             if (color == CheckersColor.White)
                 PieceColor = new SolidColorBrush(Color.FromArgb(255, 210, 210, 210));
             else
@@ -129,6 +151,7 @@ namespace CheckersGUI.Components
         {
             PieceColor = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
             PieceColorQueen = new SolidColorBrush(Color.FromArgb(a: 0, 0, 0, 0));
+            PieceColorBorder = new SolidColorBrush(Color.FromArgb(a: 0, 0, 0, 0));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
