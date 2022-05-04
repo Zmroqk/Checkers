@@ -105,7 +105,7 @@ namespace CheckersEngine.Players
             else
             {
                 Board.ChangePlayer();
-                maxi(depth - 1);
+                mini(depth - 1);
                 Board.ChangePlayer();
             }
             return max;
